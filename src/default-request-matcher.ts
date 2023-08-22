@@ -1,6 +1,5 @@
 import { HttpInteraction, HttpRequest, IRequestMatcher } from './types';
 
-
 export class DefaultRequestMatcher implements IRequestMatcher {
   public compareHeaders: boolean = true;
   public compareBody: boolean = true;

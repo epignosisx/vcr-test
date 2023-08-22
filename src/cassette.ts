@@ -1,5 +1,5 @@
 import { ClientRequestInterceptor } from '@mswjs/interceptors/ClientRequest';
-import { HttpInteraction, ICassetteStorage, IRequestMatcher, RecordMode, HttpRequest, HttpResponse } from './types';
+import { HttpInteraction, ICassetteStorage, IRequestMatcher, RecordMode, HttpRequest, HttpResponse, HttpRequestMasker } from './types';
 
 export class MatchNotFoundError extends Error {
   constructor (public readonly unmatchedHttpRequest: HttpRequest) {
@@ -17,7 +17,8 @@ export class Cassette {
     private readonly storage: ICassetteStorage,
     private readonly matcher: IRequestMatcher,
     private readonly name: string,
-    private readonly mode: RecordMode
+    private readonly mode: RecordMode,
+    private readonly masker: HttpRequestMasker,
   ) {}
 
   public isDone(): boolean {
@@ -33,7 +34,7 @@ export class Cassette {
     // Enable the interception of requests.
     this.interceptor.apply();
 
-    this.interceptor.on('request', async (request, requestId) => {
+    this.interceptor.on('request', async ({ request, requestId }) => {
       this.inProgressCalls++;
       if (this.mode === RecordMode.none) {
         return this.playback(request);
@@ -44,7 +45,7 @@ export class Cassette {
       }
     });
 
-    this.interceptor.on('response', async (response, request) => {
+    this.interceptor.on('response', async ({ response, request }) => {
       if (this.mode === RecordMode.none) {
         throw new Error('Impossible');
       }
@@ -53,6 +54,8 @@ export class Cassette {
       const res = response.clone();
       const httpRequest = requestToHttpRequest(req, await req.text());
       const httpResponse = responseToHttpResponse(res, await res.text());
+
+      this.masker(httpRequest);
 
       this.list.push({
         request: httpRequest,
@@ -73,6 +76,7 @@ export class Cassette {
   private async playback(request: any): Promise<void> {
     const req = request.clone();
     const httpRequest = requestToHttpRequest(req, await req.text());
+    this.masker(httpRequest);
     const match = this.findMatch(httpRequest);
     if (!match) {
       throw new MatchNotFoundError(httpRequest);

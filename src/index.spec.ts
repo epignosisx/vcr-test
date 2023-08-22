@@ -6,6 +6,9 @@ import { FileStorage } from "./file-storage";
 describe('foo', () => {
   it('tests foo', async () => {
     var vcr = new VCR(new FileStorage(join(__dirname, '__cassettes__')));
+    vcr.requestMasker = (req) => {
+      req.headers['user-agent'] = '****';
+    };
     await vcr.useCassette('first_test', async () => {
       await axios.post('https://httpbin.org/post', JSON.stringify({name: 'alex'}), {
         headers: {
@@ -21,7 +24,5 @@ describe('foo', () => {
         }
       });
     });
-
-    console.log('===========DONE');
-  }, 5000000)
+  }, 5000000);
 })

@@ -1,16 +1,17 @@
 import { setTimeout } from 'node:timers/promises';
-import { ICassetteStorage, IRequestMatcher, RecordMode } from './types';
+import { HttpRequestMasker, ICassetteStorage, IRequestMatcher, RecordMode } from './types';
 import { DefaultRequestMatcher } from './default-request-matcher';
 import { Cassette } from './cassette';
 
 export class VCR {
 
   public matcher: IRequestMatcher = new DefaultRequestMatcher();
+  public requestMasker: HttpRequestMasker = () => {};
 
   constructor (private readonly storage: ICassetteStorage) {}
 
   public async useCassette(name: string, action: () => Promise<void>) {
-    var cassette = new Cassette(this.storage, this.matcher, name, RecordMode.once);
+    var cassette = new Cassette(this.storage, this.matcher, name, RecordMode.once, this.requestMasker);
     await cassette.mount();
     try {
       await action();
