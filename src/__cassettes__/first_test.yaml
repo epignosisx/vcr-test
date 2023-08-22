@@ -1,0 +1,86 @@
+- request:
+    url: https://httpbin.org/post
+    method: POST
+    headers:
+      accept: application/json
+      accept-encoding: gzip, compress, deflate, br
+      content-length: "15"
+      content-type: application/json
+      host: httpbin.org
+      user-agent: axios/1.4.0
+    body: '{"name":"alex"}'
+  response:
+    status: 200
+    statusText: OK
+    headers:
+      access-control-allow-credentials: "true"
+      access-control-allow-origin: "*"
+      connection: close
+      content-length: "495"
+      content-type: application/json
+      date: Sun, 07 May 2023 22:30:20 GMT
+      server: gunicorn/19.9.0
+    body: |
+      {
+        "args": {}, 
+        "data": "{\"name\":\"alex\"}", 
+        "files": {}, 
+        "form": {}, 
+        "headers": {
+          "Accept": "application/json", 
+          "Accept-Encoding": "gzip, compress, deflate, br", 
+          "Content-Length": "15", 
+          "Content-Type": "application/json", 
+          "Host": "httpbin.org", 
+          "User-Agent": "axios/1.4.0", 
+          "X-Amzn-Trace-Id": "Root=1-6458267c-1c8f68a6531e09ed63343ec9"
+        }, 
+        "json": {
+          "name": "alex"
+        }, 
+        "origin": "75.24.55.201", 
+        "url": "https://httpbin.org/post"
+      }
+- request:
+    url: https://httpbin.org/post
+    method: POST
+    headers:
+      accept: application/json
+      accept-encoding: gzip, compress, deflate, br
+      content-length: "15"
+      content-type: application/json
+      host: httpbin.org
+      user-agent: axios/1.4.0
+    body: '{"name":"yane"}'
+  response:
+    status: 200
+    statusText: OK
+    headers:
+      access-control-allow-credentials: "true"
+      access-control-allow-origin: "*"
+      connection: close
+      content-length: "495"
+      content-type: application/json
+      date: Sun, 07 May 2023 22:30:20 GMT
+      server: gunicorn/19.9.0
+    body: |
+      {
+        "args": {}, 
+        "data": "{\"name\":\"yane\"}", 
+        "files": {}, 
+        "form": {}, 
+        "headers": {
+          "Accept": "application/json", 
+          "Accept-Encoding": "gzip, compress, deflate, br", 
+          "Content-Length": "15", 
+          "Content-Type": "application/json", 
+          "Host": "httpbin.org", 
+          "User-Agent": "axios/1.4.0", 
+          "X-Amzn-Trace-Id": "Root=1-6458267c-0579df6376c19c0273cd1ec5"
+        }, 
+        "json": {
+          "name": "yane"
+        }, 
+        "origin": "75.24.55.201", 
+        "url": "https://httpbin.org/post"
+      }
