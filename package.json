@@ -1,6 +1,6 @@
 {
   "name": "vcr-test",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Record your test suite's HTTP interactions and replay them during future test runs for fast, deterministic, accurate tests.",
   "keywords": [
     "http",
@@ -9,7 +9,7 @@
     "vcr",
     "testing"
   ],
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "jest --config './jest.config.js' --verbose",
     "build": "tsc"
