@@ -43,13 +43,11 @@ export class Cassette {
       if (this.mode === RecordMode.once) {
         return this.recordOnce(request);
       }
+
+      throw new Error('Unknown mode: ' + this.mode);
     });
 
     this.interceptor.on('response', async ({ response, request }) => {
-      if (this.mode === RecordMode.none) {
-        throw new Error('Impossible');
-      }
-
       const req = request.clone();
       const res = response.clone();
       const httpRequest = requestToHttpRequest(req, await req.text());
@@ -99,8 +97,16 @@ export class Cassette {
   }
 
   public async eject(): Promise<void> {
-    await this.storage.save(this.name, this.list);
     this.interceptor?.dispose();
+    if (this.mode === RecordMode.none) {
+      return;
+    }
+
+    if (this.mode === RecordMode.once && !this.isNew) {
+      return;
+    }
+
+    await this.storage.save(this.name, this.list);
   }
 }
 
