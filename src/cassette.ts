@@ -35,7 +35,6 @@ export class Cassette {
     this.interceptor.apply();
 
     this.interceptor.on('request', async ({ request, requestId }) => {
-      this.inProgressCalls++;
       if (this.mode === RecordMode.none) {
         return this.playback(request);
       }
@@ -60,12 +59,13 @@ export class Cassette {
         response: httpResponse,
       });
 
-      this.inProgressCalls--;
+      this.inProgressCalls = Math.max(0, this.inProgressCalls - 1);
     });
   }
 
   private async recordOnce(request: any): Promise<void> {
     if (this.isNew) {
+      this.inProgressCalls++;
       return;
     }
     return this.playback(request);
