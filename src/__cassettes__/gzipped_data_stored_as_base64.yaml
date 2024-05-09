@@ -1,0 +1,23 @@
+- request:
+    url: https://httpbin.org/gzip
+    method: GET
+    headers:
+      accept: application/json
+      accept-encoding: gzip, compress, deflate, br
+      content-type: application/json
+      host: httpbin.org
+      user-agent: "****"
+    body: ""
+  response:
+    status: 200
+    statusText: OK
+    headers:
+      access-control-allow-credentials: "true"
+      access-control-allow-origin: "*"
+      connection: close
+      content-encoding: gzip
+      content-length: "252"
+      content-type: application/json
+      date: Wed, 08 May 2024 23:53:29 GMT
+      server: gunicorn/19.9.0
+    body: ""

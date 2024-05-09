@@ -47,4 +47,19 @@ describe('cassette', () => {
       });
     });
   }, 5000000);
+
+  it('records gzipped data as base64', async () => {
+    var vcr = new VCR(new FileStorage(join(__dirname, '__cassettes__')));
+    vcr.requestMasker = (req) => {
+      req.headers['user-agent'] = '****';
+    };
+    await vcr.useCassette('gzipped_data_stored_as_base64', async () => {
+      await axios.get('https://httpbin.org/gzip', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        }
+      });
+    });
+  });
 })

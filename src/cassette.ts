@@ -48,9 +48,12 @@ export class Cassette {
 
     this.interceptor.on('response', async ({ response, request }) => {
       const req = request.clone();
-      const res = response.clone();
-      const httpRequest = requestToHttpRequest(req, await req.text());
-      const httpResponse = responseToHttpResponse(res, await res.text());
+      const res: any = response.clone();
+
+      const reqBody = isGzipped(req.headers) ? Buffer.from(await req.arrayBuffer()).toString('base64') : await req.text();
+      const resBody = isGzipped(res.headers) ? Buffer.from(await res.arrayBuffer()).toString('base64') : await res.text();
+      const httpRequest = requestToHttpRequest(req, reqBody);
+      const httpResponse = responseToHttpResponse(res, resBody);
 
       this.masker(httpRequest);
 
@@ -136,4 +139,9 @@ export function responseToHttpResponse(response: any, body: string): HttpRespons
     headers,
     body,
   }
+}
+
+function isGzipped(headers: Map<string, string>): boolean {
+  const header = headers.get('content-encoding');
+  return !!header && header.indexOf('gzip') >= 0;
 }
