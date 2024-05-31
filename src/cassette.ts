@@ -1,5 +1,7 @@
 import { ClientRequestInterceptor } from '@mswjs/interceptors/ClientRequest';
 import { HttpInteraction, ICassetteStorage, IRequestMatcher, RecordMode, HttpRequest, HttpResponse, HttpRequestMasker } from './types';
+import { Readable } from 'node:stream';
+import { read } from 'node:fs';
 
 export class MatchNotFoundError extends Error {
   constructor (public readonly unmatchedHttpRequest: HttpRequest) {
@@ -47,13 +49,11 @@ export class Cassette {
     });
 
     this.interceptor.on('response', async ({ response, request }) => {
-      const req = request.clone();
-      const res: any = response.clone();
+      const req: Request = request.clone();
+      const res: Response = response.clone();
 
-      const reqBody = isGzipped(req.headers) ? Buffer.from(await req.arrayBuffer()).toString('base64') : await req.text();
-      const resBody = isGzipped(res.headers) ? Buffer.from(await res.arrayBuffer()).toString('base64') : await res.text();
-      const httpRequest = requestToHttpRequest(req, reqBody);
-      const httpResponse = responseToHttpResponse(res, resBody);
+      const httpRequest = requestToHttpRequest(req, await consumeBody(req));
+      const httpResponse = responseToHttpResponse(res, await consumeBody(res));
 
       this.masker(httpRequest);
 
@@ -76,14 +76,22 @@ export class Cassette {
 
   private async playback(request: any): Promise<void> {
     const req = request.clone();
-    const httpRequest = requestToHttpRequest(req, await req.text());
+    const httpRequest = requestToHttpRequest(req, await consumeBody(req));
     this.masker(httpRequest);
     const match = this.findMatch(httpRequest);
     if (!match) {
       throw new MatchNotFoundError(httpRequest);
     }
 
-    request.respondWith(new Response(match.response.body, {
+    let body: string | Readable = match.response.body;
+    if (isGzippedMatch(match.response.headers)) {
+      const readable = new Readable();
+      readable._read = () => {};
+      readable.push(Buffer.from(match.response.body, 'base64'));
+      readable.push(null);
+      body = readable;
+    }
+    request.respondWith(new Response(body, {
       status: match.response.status,
       statusText: match.response.statusText,
       headers: match.response.headers,
@@ -113,7 +121,7 @@ export class Cassette {
   }
 }
 
-export function requestToHttpRequest(request: any, body: string): HttpRequest {
+export function requestToHttpRequest(request: Request, body: string): HttpRequest {
   var headers: Record<string, string> = {};
   for (const [key, value] of request.headers) {
     headers[key] = value;
@@ -139,6 +147,15 @@ export function responseToHttpResponse(response: any, body: string): HttpRespons
     headers,
     body,
   }
+}
+
+async function consumeBody(req: Request | Response) {
+  return isGzipped(req.headers) ? Buffer.from(await req.arrayBuffer()).toString('base64') : await req.text();
+}
+
+function isGzippedMatch(headers: Record<string, string>): boolean {
+  const header = headers['content-encoding'];
+  return !!header && header.indexOf('gzip') >= 0;
 }
 
 function isGzipped(headers: Map<string, string>): boolean {
