@@ -151,8 +151,6 @@ For more details refer to the [FileStorage](https://github.com/epignosisx/vcr-te
 You may want to ignore some hosts from being recorded. You can do this by setting the `blacklistHosts` property:
 
 ```ts
-const vcr = new VCR(...);
-vcr.blacklistHosts = ['example.com'];
 await vcr.useCassette('blacklistedHost', async () => {
   // This will not be recorded
   await axios.get('https://httpbin.dev/get');
