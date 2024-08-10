@@ -2,6 +2,7 @@ import axios from 'axios';
 import { join } from 'node:path';
 import { VCR } from './index';
 import { FileStorage } from "./file-storage";
+import * as fs from "node:fs";
 
 describe('cassette', () => {
   it('records multiple HTTP calls', async () => {
@@ -61,5 +62,30 @@ describe('cassette', () => {
         }
       });
     });
+  });
+
+  it('does not recored blacklisted host', async () => {
+    var vcr = new VCR(new FileStorage(join(__dirname, '__cassettes__')));
+    vcr.requestMasker = (req) => {
+      req.headers['user-agent'] = '****';
+    };
+    await vcr.useCassette('blacklistedHost', async () => {
+      await axios.get('https://httpbin.dev/get');
+
+      await axios.get('https://httpbin.org/gzip', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        }
+      });
+    }, ['httpbin.org']);
+
+    const recordFile = join(__dirname, '__cassettes__', 'blacklistedHost.yaml');
+    const fileExists = fs.existsSync(recordFile);
+    //expect that file has not the content of the blacklisted host
+    const fileContent = fs.readFileSync(recordFile, 'utf-8');
+    expect(fileContent).not.toContain('httpbin.org');
+    expect(fileExists).toBe(true);
+    fs.rmSync(recordFile);
   });
 })

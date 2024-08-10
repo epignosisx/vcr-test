@@ -147,3 +147,15 @@ const vcr = new VCR(new DatabaseStorage());
 
 For more details refer to the [FileStorage](https://github.com/epignosisx/vcr-test/blob/main/src/file-storage.ts) implementation.
 
+### Blacklist Hosts
+You may want to ignore some hosts from being recorded. You can do this by setting the `blacklistHosts` property:
+
+```ts
+const vcr = new VCR(...);
+vcr.blacklistHosts = ['example.com'];
+await vcr.useCassette('blacklistedHost', async () => {
+  // This will not be recorded
+  await axios.get('https://httpbin.dev/get');
+  await axios.get('https://httpbin.org/get');
+}, ['httpbin.dev']);
+```

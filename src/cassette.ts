@@ -21,6 +21,7 @@ export class Cassette {
     private readonly name: string,
     private readonly mode: RecordMode,
     private readonly masker: HttpRequestMasker,
+    private readonly hostBlacklist: string[] = [],
   ) {}
 
   public isDone(): boolean {
@@ -37,6 +38,9 @@ export class Cassette {
     this.interceptor.apply();
 
     this.interceptor.on('request', async ({ request, requestId }) => {
+      if (this.hostBlacklist.includes(new URL(request.url).host)) {
+          return;
+      }
       if (this.mode === RecordMode.none) {
         return this.playback(request);
       }
@@ -49,6 +53,9 @@ export class Cassette {
     });
 
     this.interceptor.on('response', async ({ response, request }) => {
+      if (this.hostBlacklist.includes(new URL(request.url).host)) {
+        return;
+      }
       const req: Request = request.clone();
       const res: Response = response.clone();
 
