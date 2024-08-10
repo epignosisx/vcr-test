@@ -38,7 +38,7 @@ export class Cassette {
     this.interceptor.apply();
 
     this.interceptor.on('request', async ({ request, requestId }) => {
-      if (this.hostBlacklist.includes(new URL(request.url).host)) {
+      if (this.hostBlacklist.includes(new URL(request.url).hostname)) {
           return;
       }
       if (this.mode === RecordMode.none) {
@@ -53,7 +53,7 @@ export class Cassette {
     });
 
     this.interceptor.on('response', async ({ response, request }) => {
-      if (this.hostBlacklist.includes(new URL(request.url).host)) {
+      if (this.hostBlacklist.includes(new URL(request.url).hostname)) {
         return;
       }
       const req: Request = request.clone();
