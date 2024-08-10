@@ -64,7 +64,7 @@ describe('cassette', () => {
     });
   });
 
-  it('does not recored blacklisted host', async () => {
+  it('does not record blacklisted host', async () => {
     var vcr = new VCR(new FileStorage(join(__dirname, '__cassettes__')));
     vcr.requestMasker = (req) => {
       req.headers['user-agent'] = '****';
