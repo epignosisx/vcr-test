@@ -1,7 +1,10 @@
+import { FetchInterceptor } from '@mswjs/interceptors/fetch';
 import { ClientRequestInterceptor } from '@mswjs/interceptors/ClientRequest';
+import { BatchInterceptor } from '@mswjs/interceptors'
+
+
 import { HttpInteraction, ICassetteStorage, IRequestMatcher, RecordMode, HttpRequest, HttpResponse, HttpRequestMasker } from './types';
 import { Readable } from 'node:stream';
-import { read } from 'node:fs';
 
 export class MatchNotFoundError extends Error {
   constructor (public readonly unmatchedHttpRequest: HttpRequest) {
@@ -10,7 +13,7 @@ export class MatchNotFoundError extends Error {
 }
 
 export class Cassette {
-  private interceptor?: ClientRequestInterceptor;
+  private interceptor?: BatchInterceptor<any, any>;
   private list: HttpInteraction[] = [];
   private isNew: boolean = false;
   private inProgressCalls: number = 0;
@@ -31,7 +34,14 @@ export class Cassette {
     const list = await this.storage.load(this.name);
     this.isNew = !list;
     this.list = list ?? [];
-    this.interceptor = new ClientRequestInterceptor();
+
+    this.interceptor = new BatchInterceptor({
+      name: 'my-interceptor',
+      interceptors: [
+        new ClientRequestInterceptor(),
+        new FetchInterceptor(),
+      ],
+    })
 
     // Enable the interception of requests.
     this.interceptor.apply();
