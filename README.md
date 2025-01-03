@@ -186,6 +186,17 @@ const vcr = new VCR(new DatabaseStorage());
 
 For more details refer to the [FileStorage](https://github.com/epignosisx/vcr-test/blob/main/src/file-storage.ts) implementation.
 
+### Request pass-through
+You may want certain requests to never be recorded. You can do it this way:
+
+```ts
+import { VCR } from 'vcr-test';
+const vcr = new VCR(...);
+vcr.requestPassThrough = (req) => {
+  return req.url.startsWith('https://example.com');
+};
+```
+
 ## FAQ
 ### How can I pretty print JSON bodies?
 

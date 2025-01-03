@@ -28,7 +28,29 @@ describe('cassette', () => {
     });
   }, 5000000);
 
-  it.only('records new calls', async () => {
+  it('does not record when request is marked as pass-through', async () => {
+    var vcr = new VCR(new FileStorage(CASSETTES_DIR));
+    vcr.requestPassThrough = (req) => {
+      return req.url === 'https://httpbin.org/put';
+    };
+    await vcr.useCassette('pass_through_calls', async () => {
+      await axios.put('https://httpbin.org/put', JSON.stringify({name: 'alex'}), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        }
+      });
+
+      await axios.post('https://httpbin.org/post', JSON.stringify({name: 'john'}), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        }
+      });
+    });
+  }, 5000000);
+
+  it('records new calls', async () => {
     await unlink(join(CASSETTES_DIR, 'new_calls.yaml'));
     var vcr = new VCR(new FileStorage(CASSETTES_DIR));
     vcr.mode = RecordMode.once;

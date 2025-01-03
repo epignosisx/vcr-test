@@ -74,4 +74,12 @@ export interface IRequestMatcher {
   indexOf(calls: HttpInteraction[], request: HttpRequest): number;
 }
 
+/**
+ * A function that masks an HTTP request
+ */
 export type HttpRequestMasker = (httpRequest: HttpRequest) => void;
+
+/**
+ * A function that allows an HTTP request to pass through (never be recorded)
+ */
+export type PassThroughHandler = (httpRequest: HttpRequest) => boolean;

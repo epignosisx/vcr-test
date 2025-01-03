@@ -1,5 +1,5 @@
 import { ClientRequestInterceptor } from '@mswjs/interceptors/ClientRequest';
-import { HttpInteraction, ICassetteStorage, IRequestMatcher, RecordMode, HttpRequest, HttpResponse, HttpRequestMasker } from './types';
+import { HttpInteraction, ICassetteStorage, IRequestMatcher, RecordMode, HttpRequest, HttpResponse, HttpRequestMasker, PassThroughHandler } from './types';
 import { Readable } from 'node:stream';
 
 export class MatchNotFoundError extends Error {
@@ -22,6 +22,7 @@ export class Cassette {
     private readonly name: string,
     private readonly mode: RecordMode,
     private readonly masker: HttpRequestMasker,
+    private readonly passThroughHandler: PassThroughHandler | undefined,
   ) {}
 
   public isDone(): boolean {
@@ -38,6 +39,11 @@ export class Cassette {
     this.interceptor.apply();
 
     this.interceptor.on('request', async ({ request, requestId }) => {
+      const isPassThrough = await this.isPassThrough(request);
+      if (isPassThrough) {
+        return;
+      }
+
       if (this.mode === RecordMode.none) {
         return this.playback(request);
       }
@@ -49,11 +55,14 @@ export class Cassette {
       if (this.mode === RecordMode.update) {
         return this.recordNew(request);
       }
-
-      throw new Error('Unknown mode: ' + this.mode);
     });
 
     this.interceptor.on('response', async ({ response, request }) => {
+      const isPassThrough = await this.isPassThrough(request);
+      if (isPassThrough) {
+        return;
+      }
+      
       const req: Request = request.clone();
       const res: Response = response.clone();
 
@@ -96,7 +105,7 @@ export class Cassette {
   private async playback(request: any): Promise<void> {
     const req = request.clone();
     const httpRequest = requestToHttpRequest(req, await consumeBody(req));
-    this.masker(httpRequest);
+    this.masker?.(httpRequest);
     const match = this.findMatch(httpRequest);
     if (!match) {
       throw new MatchNotFoundError(httpRequest);
@@ -127,6 +136,15 @@ export class Cassette {
       return match;
     }
     return undefined;
+  }
+
+  private async isPassThrough(request: any) {
+    if (this.passThroughHandler) {
+      const req = request.clone();
+      const httpRequest = requestToHttpRequest(req, await consumeBody(req));
+      return this.passThroughHandler(httpRequest);
+    }
+    return false;
   }
 
   public async eject(): Promise<void> {
