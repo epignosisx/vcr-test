@@ -31,6 +31,11 @@ export enum RecordMode {
   once = 'once',
 
   /**
+   * Records new HTTP interactions, plays back the recorded ones, deletes the rest.
+   */
+  update = 'update',
+
+  /**
    * Record every HTTP interactions; do not play any back.
    */
   all = 'all'

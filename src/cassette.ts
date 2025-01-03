@@ -1,7 +1,6 @@
 import { ClientRequestInterceptor } from '@mswjs/interceptors/ClientRequest';
 import { HttpInteraction, ICassetteStorage, IRequestMatcher, RecordMode, HttpRequest, HttpResponse, HttpRequestMasker } from './types';
 import { Readable } from 'node:stream';
-import { read } from 'node:fs';
 
 export class MatchNotFoundError extends Error {
   constructor (public readonly unmatchedHttpRequest: HttpRequest) {
@@ -14,6 +13,8 @@ export class Cassette {
   private list: HttpInteraction[] = [];
   private isNew: boolean = false;
   private inProgressCalls: number = 0;
+  private usedInteractions: Set<HttpInteraction> = new Set<HttpInteraction>();
+  private newInteractions: Set<HttpInteraction> = new Set<HttpInteraction>();
 
   constructor(
     private readonly storage: ICassetteStorage,
@@ -45,6 +46,10 @@ export class Cassette {
         return this.recordOnce(request);
       }
 
+      if (this.mode === RecordMode.update) {
+        return this.recordNew(request);
+      }
+
       throw new Error('Unknown mode: ' + this.mode);
     });
 
@@ -57,13 +62,27 @@ export class Cassette {
 
       this.masker(httpRequest);
 
-      this.list.push({
+      const newInteraction = {
         request: httpRequest,
         response: httpResponse,
-      });
+      };
+      this.list.push(newInteraction);
+      this.newInteractions.add(newInteraction);
 
       this.inProgressCalls = Math.max(0, this.inProgressCalls - 1);
     });
+  }
+
+  private async recordNew(request: any): Promise<void> {
+    try {
+      return await this.playback(request);
+    } catch (error) {
+      if (error instanceof MatchNotFoundError) {
+        this.inProgressCalls++;
+        return;
+      }
+      throw error;
+    }
   }
 
   private async recordOnce(request: any): Promise<void> {
@@ -83,6 +102,8 @@ export class Cassette {
       throw new MatchNotFoundError(httpRequest);
     }
 
+    this.usedInteractions.add(match);
+
     let body: string | Readable = match.response.body;
     if (isGzippedMatch(match.response.headers)) {
       const readable = new Readable();
@@ -91,6 +112,7 @@ export class Cassette {
       readable.push(null);
       body = readable;
     }
+
     request.respondWith(new Response(body, {
       status: match.response.status,
       statusText: match.response.statusText,
@@ -115,6 +137,11 @@ export class Cassette {
 
     if (this.mode === RecordMode.once && !this.isNew) {
       return;
+    }
+
+    if (this.mode === RecordMode.update && !this.isNew) {
+      // delete unsued interactions
+      this.list = this.list.filter((interaction) => this.newInteractions.has(interaction) || this.usedInteractions.has(interaction));
     }
 
     await this.storage.save(this.name, this.list);
