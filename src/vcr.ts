@@ -14,7 +14,7 @@ export class VCR {
 
   public matcher: IRequestMatcher = new DefaultRequestMatcher();
   public requestMasker: HttpRequestMasker = () => {};
-  public mode: RecordMode = RecordMode.update;
+  public mode: RecordMode = RecordMode.once;
 
   constructor (private readonly storage: ICassetteStorage) {}
 
