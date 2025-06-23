@@ -52,12 +52,12 @@ export class Cassette {
     this.interceptor.apply();
 
     this.interceptor.on('request', async ({ request, requestId }) => {
+      this.allRequests.set(requestId, request.clone());
+      
       const isPassThrough = await this.isPassThrough(request);
       if (isPassThrough) {
         return;
       }
-
-      this.allRequests.set(requestId, request.clone());
 
       if (this.mode === RecordMode.none) {
         return this.playback(request);
