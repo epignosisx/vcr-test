@@ -4,6 +4,7 @@ import { RecordMode, VCR } from './index';
 import { FileStorage } from "./file-storage";
 import { unlink } from 'node:fs/promises';
 import { existsSync, statSync } from 'node:fs';
+import { describe, it, expect } from 'vitest';
 
 const CASSETTES_DIR = join(__dirname, '__cassettes__');
 

@@ -220,7 +220,7 @@ function isGzippedMatch(headers: Record<string, string>): boolean {
   return !!header && header.indexOf('gzip') >= 0;
 }
 
-function isGzipped(headers: Map<string, string>): boolean {
+function isGzipped(headers: Headers): boolean {
   const header = headers.get('content-encoding');
   return !!header && header.indexOf('gzip') >= 0;
 }
