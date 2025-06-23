@@ -3,10 +3,7 @@
     method: POST
     headers:
       accept: application/json
-      accept-encoding: gzip, compress, deflate, br
-      content-length: "15"
       content-type: application/json
-      host: httpbin.org
       user-agent: "****"
     body: '{"name":"alex"}'
   response:
@@ -15,10 +12,10 @@
     headers:
       access-control-allow-credentials: "true"
       access-control-allow-origin: "*"
-      connection: close
-      content-length: "495"
+      connection: keep-alive
+      content-length: "539"
       content-type: application/json
-      date: Tue, 22 Aug 2023 18:08:49 GMT
+      date: Mon, 23 Jun 2025 14:45:13 GMT
       server: gunicorn/19.9.0
     body: |
       {
@@ -28,17 +25,19 @@
         "form": {}, 
         "headers": {
           "Accept": "application/json", 
-          "Accept-Encoding": "gzip, compress, deflate, br", 
+          "Accept-Encoding": "br, gzip, deflate", 
+          "Accept-Language": "*", 
           "Content-Length": "15", 
           "Content-Type": "application/json", 
           "Host": "httpbin.org", 
-          "User-Agent": "axios/1.4.0", 
-          "X-Amzn-Trace-Id": "Root=1-64e4f9b1-4f95f108697e5ca60fe5602d"
+          "Sec-Fetch-Mode": "cors", 
+          "User-Agent": "node", 
+          "X-Amzn-Trace-Id": "Root=1-68596878-741fffc03a2e51ec5ae29820"
         }, 
         "json": {
           "name": "alex"
         }, 
-        "origin": "75.24.55.201", 
+        "origin": "104.5.242.141", 
         "url": "https://httpbin.org/post"
       }
 - request:
@@ -46,41 +45,40 @@
     method: POST
     headers:
       accept: application/json
-      accept-encoding: gzip, compress, deflate, br
-      content-length: "15"
       content-type: application/json
-      host: httpbin.org
       user-agent: "****"
-    body: '{"name":"yane"}'
+    body: '{"name":"alex"}'
   response:
     status: 200
     statusText: OK
     headers:
       access-control-allow-credentials: "true"
       access-control-allow-origin: "*"
-      connection: close
-      content-length: "495"
+      connection: keep-alive
+      content-length: "539"
       content-type: application/json
-      date: Tue, 22 Aug 2023 18:08:49 GMT
+      date: Mon, 23 Jun 2025 14:45:18 GMT
       server: gunicorn/19.9.0
     body: |
       {
         "args": {}, 
-        "data": "{\"name\":\"yane\"}", 
+        "data": "{\"name\":\"alex\"}", 
         "files": {}, 
         "form": {}, 
         "headers": {
           "Accept": "application/json", 
-          "Accept-Encoding": "gzip, compress, deflate, br", 
+          "Accept-Encoding": "br, gzip, deflate", 
+          "Accept-Language": "*", 
           "Content-Length": "15", 
           "Content-Type": "application/json", 
           "Host": "httpbin.org", 
-          "User-Agent": "axios/1.4.0", 
-          "X-Amzn-Trace-Id": "Root=1-64e4f9b1-2ca8f4024ab7a4252062f7d9"
+          "Sec-Fetch-Mode": "cors", 
+          "User-Agent": "node", 
+          "X-Amzn-Trace-Id": "Root=1-68596879-2ff3b2d521f1afb00e7ac8bb"
         }, 
         "json": {
-          "name": "yane"
+          "name": "alex"
         }, 
-        "origin": "75.24.55.201", 
+        "origin": "104.5.242.141", 
         "url": "https://httpbin.org/post"
       }

@@ -1,6 +1,11 @@
+import { FetchInterceptor } from '@mswjs/interceptors/fetch';
 import { ClientRequestInterceptor } from '@mswjs/interceptors/ClientRequest';
+import { BatchInterceptor } from '@mswjs/interceptors'
+
+
 import { HttpInteraction, ICassetteStorage, IRequestMatcher, RecordMode, HttpRequest, HttpResponse, HttpRequestMasker, PassThroughHandler } from './types';
 import { Readable } from 'node:stream';
+import assert from 'node:assert';
 
 export class MatchNotFoundError extends Error {
   constructor (public readonly unmatchedHttpRequest: HttpRequest) {
@@ -9,12 +14,13 @@ export class MatchNotFoundError extends Error {
 }
 
 export class Cassette {
-  private interceptor?: ClientRequestInterceptor;
+  private interceptor?: BatchInterceptor<any, any>;
   private list: HttpInteraction[] = [];
   private isNew: boolean = false;
   private inProgressCalls: number = 0;
   private usedInteractions: Set<HttpInteraction> = new Set<HttpInteraction>();
   private newInteractions: Set<HttpInteraction> = new Set<HttpInteraction>();
+  private readonly allRequests: Map<string, Request> = new Map<string, Request>();
 
   constructor(
     private readonly storage: ICassetteStorage,
@@ -33,12 +39,21 @@ export class Cassette {
     const list = await this.storage.load(this.name);
     this.isNew = !list;
     this.list = list ?? [];
-    this.interceptor = new ClientRequestInterceptor();
+
+    this.interceptor = new BatchInterceptor({
+      name: 'my-interceptor',
+      interceptors: [
+        new ClientRequestInterceptor(),
+        new FetchInterceptor(),
+      ],
+    })
 
     // Enable the interception of requests.
     this.interceptor.apply();
 
     this.interceptor.on('request', async ({ request, requestId }) => {
+      this.allRequests.set(requestId, request.clone());
+      
       const isPassThrough = await this.isPassThrough(request);
       if (isPassThrough) {
         return;
@@ -57,13 +72,15 @@ export class Cassette {
       }
     });
 
-    this.interceptor.on('response', async ({ response, request }) => {
-      const isPassThrough = await this.isPassThrough(request);
+    this.interceptor.on('response', async ({ response, requestId }) => {
+      const req: Request | undefined = this.allRequests.get(requestId);
+      assert.ok(req, `Request with id ${requestId} not found in allRequests map`);
+
+      const isPassThrough = await this.isPassThrough(req);
       if (isPassThrough) {
         return;
       }
       
-      const req: Request = request.clone();
       const res: Response = response.clone();
 
       const httpRequest = requestToHttpRequest(req, await consumeBody(req));
