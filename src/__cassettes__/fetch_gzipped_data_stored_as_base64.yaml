@@ -1,0 +1,21 @@
+- request:
+    url: https://httpbin.org/gzip
+    method: GET
+    headers:
+      accept: application/json
+      content-type: application/json
+      user-agent: "****"
+    body: ""
+  response:
+    status: 200
+    statusText: OK
+    headers:
+      access-control-allow-credentials: "true"
+      access-control-allow-origin: "*"
+      connection: keep-alive
+      content-encoding: gzip
+      content-length: "271"
+      content-type: application/json
+      date: Mon, 23 Jun 2025 14:26:12 GMT
+      server: gunicorn/19.9.0
+    body: ewogICJnemlwcGVkIjogdHJ1ZSwgCiAgImhlYWRlcnMiOiB7CiAgICAiQWNjZXB0IjogImFwcGxpY2F0aW9uL2pzb24iLCAKICAgICJBY2NlcHQtRW5jb2RpbmciOiAiYnIsIGd6aXAsIGRlZmxhdGUiLCAKICAgICJBY2NlcHQtTGFuZ3VhZ2UiOiAiKiIsIAogICAgIkNvbnRlbnQtVHlwZSI6ICJhcHBsaWNhdGlvbi9qc29uIiwgCiAgICAiSG9zdCI6ICJodHRwYmluLm9yZyIsIAogICAgIlNlYy1GZXRjaC1Nb2RlIjogImNvcnMiLCAKICAgICJVc2VyLUFnZW50IjogIm5vZGUiLCAKICAgICJYLUFtem4tVHJhY2UtSWQiOiAiUm9vdD0xLTY4NTk2NDAzLTUwZTAwZTY4NGI5MDJkMTIzYjZkNWQyYSIKICB9LCAKICAibWV0aG9kIjogIkdFVCIsIAogICJvcmlnaW4iOiAiMTA0LjUuMjQyLjE0MSIKfQo=

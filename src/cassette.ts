@@ -3,8 +3,9 @@ import { ClientRequestInterceptor } from '@mswjs/interceptors/ClientRequest';
 import { BatchInterceptor } from '@mswjs/interceptors'
 
 
-import { HttpInteraction, ICassetteStorage, IRequestMatcher, RecordMode, HttpRequest, HttpResponse, HttpRequestMasker } from './types';
+import { HttpInteraction, ICassetteStorage, IRequestMatcher, RecordMode, HttpRequest, HttpResponse, HttpRequestMasker, PassThroughHandler } from './types';
 import { Readable } from 'node:stream';
+import assert from 'node:assert';
 
 export class MatchNotFoundError extends Error {
   constructor (public readonly unmatchedHttpRequest: HttpRequest) {
@@ -19,6 +20,7 @@ export class Cassette {
   private inProgressCalls: number = 0;
   private usedInteractions: Set<HttpInteraction> = new Set<HttpInteraction>();
   private newInteractions: Set<HttpInteraction> = new Set<HttpInteraction>();
+  private readonly allRequests: Map<string, Request> = new Map<string, Request>();
 
   constructor(
     private readonly storage: ICassetteStorage,
@@ -55,6 +57,8 @@ export class Cassette {
         return;
       }
 
+      this.allRequests.set(requestId, request.clone());
+
       if (this.mode === RecordMode.none) {
         return this.playback(request);
       }
@@ -68,13 +72,15 @@ export class Cassette {
       }
     });
 
-    this.interceptor.on('response', async ({ response, request }) => {
-      const isPassThrough = await this.isPassThrough(request);
+    this.interceptor.on('response', async ({ response, requestId }) => {
+      const req: Request | undefined = this.allRequests.get(requestId);
+      assert.ok(req, `Request with id ${requestId} not found in allRequests map`);
+
+      const isPassThrough = await this.isPassThrough(req);
       if (isPassThrough) {
         return;
       }
       
-      const req: Request = request.clone();
       const res: Response = response.clone();
 
       const httpRequest = requestToHttpRequest(req, await consumeBody(req));

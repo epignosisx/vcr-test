@@ -44,7 +44,7 @@ describe('cassette', () => {
   });
 
   describe('fetch', () => {
-    it.only('records the same HTTP call multiple times', async () => {
+    it('records the same HTTP call multiple times', async () => {
       var vcr = new VCR(new FileStorage(join(__dirname, '__cassettes__')));
       vcr.requestMasker = (req) => {
         req.headers['user-agent'] = '****';
@@ -58,13 +58,13 @@ describe('cassette', () => {
           }
         });
   
-        // await axios.post('https://httpbin.org/post', JSON.stringify({ name: 'alex' }), {
-        //   adapter: 'fetch',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //     'Accept': 'application/json',
-        //   }
-        // });
+        await axios.post('https://httpbin.org/post', JSON.stringify({ name: 'alex' }), {
+          adapter: 'fetch',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          }
+        });
       });
     }, 5000000);
   
@@ -82,6 +82,6 @@ describe('cassette', () => {
           }
         });
       });
-    });
+    }, 5000000);
   });
 });

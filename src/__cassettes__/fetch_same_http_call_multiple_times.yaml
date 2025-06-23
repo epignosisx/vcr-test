@@ -1,1 +1,84 @@
-[]
+- request:
+    url: https://httpbin.org/post
+    method: POST
+    headers:
+      accept: application/json
+      content-type: application/json
+      user-agent: "****"
+    body: '{"name":"alex"}'
+  response:
+    status: 200
+    statusText: OK
+    headers:
+      access-control-allow-credentials: "true"
+      access-control-allow-origin: "*"
+      connection: keep-alive
+      content-length: "539"
+      content-type: application/json
+      date: Mon, 23 Jun 2025 14:25:14 GMT
+      server: gunicorn/19.9.0
+    body: |
+      {
+        "args": {}, 
+        "data": "{\"name\":\"alex\"}", 
+        "files": {}, 
+        "form": {}, 
+        "headers": {
+          "Accept": "application/json", 
+          "Accept-Encoding": "br, gzip, deflate", 
+          "Accept-Language": "*", 
+          "Content-Length": "15", 
+          "Content-Type": "application/json", 
+          "Host": "httpbin.org", 
+          "Sec-Fetch-Mode": "cors", 
+          "User-Agent": "node", 
+          "X-Amzn-Trace-Id": "Root=1-685963c7-2c39796c63c0856d2495ea19"
+        }, 
+        "json": {
+          "name": "alex"
+        }, 
+        "origin": "104.5.242.141", 
+        "url": "https://httpbin.org/post"
+      }
+- request:
+    url: https://httpbin.org/post
+    method: POST
+    headers:
+      accept: application/json
+      content-type: application/json
+      user-agent: "****"
+    body: '{"name":"alex"}'
+  response:
+    status: 200
+    statusText: OK
+    headers:
+      access-control-allow-credentials: "true"
+      access-control-allow-origin: "*"
+      connection: keep-alive
+      content-length: "539"
+      content-type: application/json
+      date: Mon, 23 Jun 2025 14:25:15 GMT
+      server: gunicorn/19.9.0
+    body: |
+      {
+        "args": {}, 
+        "data": "{\"name\":\"alex\"}", 
+        "files": {}, 
+        "form": {}, 
+        "headers": {
+          "Accept": "application/json", 
+          "Accept-Encoding": "br, gzip, deflate", 
+          "Accept-Language": "*", 
+          "Content-Length": "15", 
+          "Content-Type": "application/json", 
+          "Host": "httpbin.org", 
+          "Sec-Fetch-Mode": "cors", 
+          "User-Agent": "node", 
+          "X-Amzn-Trace-Id": "Root=1-685963ca-23f1c5547efcf713159e2b83"
+        }, 
+        "json": {
+          "name": "alex"
+        }, 
+        "origin": "104.5.242.141", 
+        "url": "https://httpbin.org/post"
+      }
