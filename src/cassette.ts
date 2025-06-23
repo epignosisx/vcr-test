@@ -17,6 +17,8 @@ export class Cassette {
   private list: HttpInteraction[] = [];
   private isNew: boolean = false;
   private inProgressCalls: number = 0;
+  private usedInteractions: Set<HttpInteraction> = new Set<HttpInteraction>();
+  private newInteractions: Set<HttpInteraction> = new Set<HttpInteraction>();
 
   constructor(
     private readonly storage: ICassetteStorage,
@@ -24,6 +26,7 @@ export class Cassette {
     private readonly name: string,
     private readonly mode: RecordMode,
     private readonly masker: HttpRequestMasker,
+    private readonly passThroughHandler: PassThroughHandler | undefined,
   ) {}
 
   public isDone(): boolean {
@@ -47,6 +50,11 @@ export class Cassette {
     this.interceptor.apply();
 
     this.interceptor.on('request', async ({ request, requestId }) => {
+      const isPassThrough = await this.isPassThrough(request);
+      if (isPassThrough) {
+        return;
+      }
+
       if (this.mode === RecordMode.none) {
         return this.playback(request);
       }
@@ -55,10 +63,17 @@ export class Cassette {
         return this.recordOnce(request);
       }
 
-      throw new Error('Unknown mode: ' + this.mode);
+      if (this.mode === RecordMode.update) {
+        return this.recordNew(request);
+      }
     });
 
     this.interceptor.on('response', async ({ response, request }) => {
+      const isPassThrough = await this.isPassThrough(request);
+      if (isPassThrough) {
+        return;
+      }
+      
       const req: Request = request.clone();
       const res: Response = response.clone();
 
@@ -67,13 +82,27 @@ export class Cassette {
 
       this.masker(httpRequest);
 
-      this.list.push({
+      const newInteraction = {
         request: httpRequest,
         response: httpResponse,
-      });
+      };
+      this.list.push(newInteraction);
+      this.newInteractions.add(newInteraction);
 
       this.inProgressCalls = Math.max(0, this.inProgressCalls - 1);
     });
+  }
+
+  private async recordNew(request: any): Promise<void> {
+    try {
+      return await this.playback(request);
+    } catch (error) {
+      if (error instanceof MatchNotFoundError) {
+        this.inProgressCalls++;
+        return;
+      }
+      throw error;
+    }
   }
 
   private async recordOnce(request: any): Promise<void> {
@@ -87,11 +116,13 @@ export class Cassette {
   private async playback(request: any): Promise<void> {
     const req = request.clone();
     const httpRequest = requestToHttpRequest(req, await consumeBody(req));
-    this.masker(httpRequest);
+    this.masker?.(httpRequest);
     const match = this.findMatch(httpRequest);
     if (!match) {
       throw new MatchNotFoundError(httpRequest);
     }
+
+    this.usedInteractions.add(match);
 
     let body: string | Readable = match.response.body;
     if (isGzippedMatch(match.response.headers)) {
@@ -101,6 +132,7 @@ export class Cassette {
       readable.push(null);
       body = readable;
     }
+
     request.respondWith(new Response(body, {
       status: match.response.status,
       statusText: match.response.statusText,
@@ -117,6 +149,15 @@ export class Cassette {
     return undefined;
   }
 
+  private async isPassThrough(request: any) {
+    if (this.passThroughHandler) {
+      const req = request.clone();
+      const httpRequest = requestToHttpRequest(req, await consumeBody(req));
+      return this.passThroughHandler(httpRequest);
+    }
+    return false;
+  }
+
   public async eject(): Promise<void> {
     this.interceptor?.dispose();
     if (this.mode === RecordMode.none) {
@@ -125,6 +166,11 @@ export class Cassette {
 
     if (this.mode === RecordMode.once && !this.isNew) {
       return;
+    }
+
+    if (this.mode === RecordMode.update && !this.isNew) {
+      // delete unsued interactions
+      this.list = this.list.filter((interaction) => this.newInteractions.has(interaction) || this.usedInteractions.has(interaction));
     }
 
     await this.storage.save(this.name, this.list);

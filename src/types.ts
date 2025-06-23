@@ -31,9 +31,9 @@ export enum RecordMode {
   once = 'once',
 
   /**
-   * Playback previously recorded HTTP interactions and record new ones.
+   * Records new HTTP interactions, plays back the recorded ones, deletes the rest.
    */
-  new = 'new',
+  update = 'update',
 
   /**
    * Record every HTTP interactions; do not play any back.
@@ -74,4 +74,12 @@ export interface IRequestMatcher {
   indexOf(calls: HttpInteraction[], request: HttpRequest): number;
 }
 
+/**
+ * A function that masks an HTTP request
+ */
 export type HttpRequestMasker = (httpRequest: HttpRequest) => void;
+
+/**
+ * A function that allows an HTTP request to pass through (never be recorded)
+ */
+export type PassThroughHandler = (httpRequest: HttpRequest) => boolean;

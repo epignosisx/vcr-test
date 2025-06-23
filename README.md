@@ -32,12 +32,36 @@ describe('some suite', () => {
 })
 ```
 
+### Terminology
+
+- Cassette: a file containing the recorded HTTP interactions.
+- HTTP Interaction: a HTTP Request and Response tuple
+
+## Recording Modes
+VCR supports different recording modes:
+
+1. `once`: Record the HTTP interactions if the cassette has not been recorded; otherwise, playback the HTTP interactions. This is the default. Helpful when a new feature has been developed and you want to record once and playback in the future.
+2. `none`: Do not record any HTTP interactions; play them all back. Similar to `once` except it will not try to make live calls even when the cassette does not exist.
+3. `update`: Records new HTTP interactions, plays back the recorded ones, deletes the rest. Useful when there is a change in one of the HTTP interactions like a new field in the request or response. This mode will try to preserve the cassette as much as possible.
+4. `all` Record every HTTP interactions; do not play any back. Useful for one-time checks against the real endpoints.
+
+```ts
+import { VCR, RecordMode } from 'vcr-test';
+
+const vcr = new VCR(...);
+vcr.mode = RecordMode.update;
+
+await vcr.useCassette(...);
+```
+
+
 ## Extensibility
 
 ### Request masking
-Your API calls might include sensitive data that you do not want to record in a cassette (API Keys, bearer tokens, etc). You can assign a request matcher by:
+Your API calls might include sensitive data that you do not want to record in a cassette (API Keys, bearer tokens, etc). You can assign a request masker by:
 
 ```ts
+import { VCR } from 'vcr-test';
 const vcr = new VCR(...);
 vcr.requestMasker = (req) => {
   req.headers['authorization'] = 'masked';
@@ -45,21 +69,29 @@ vcr.requestMasker = (req) => {
 ```
 
 ### Request matching
-When running a test the library will try to find a match in a cassette that matches on url, headers, and body. However, you may want to change this behavior to ignore certain headers and perform custom body checks.
+VCR will try to find a match in a cassette that matches on url, headers, and body. However, you may want to change this behavior to ignore certain headers and perform custom body checks.
 
 The default request matcher allows you to change some of its behavior:
 
 ```ts
+import { VCR, DefaultRequestMatcher } from 'vcr-test';
+
 const vcr = new VCR(...);
 
+const matcher = new DefaultRequestMatcher();
+
 // the request headers will not be compared against recorded HTTP traffic.
-vcr.matcher.compareHeaders = false; 
+matcher.compareHeaders = false; 
 
 // the request body will not be compared against recorded HTTP traffic.
-vcr.matcher.compareBody = false;
+matcher.compareBody = false;
 
 // This will ignore specific headers when doing request matching
-vcr.matcher.ignoreHeaders.add('timestamp');
+matcher.ignoreHeaders.add('timestamp');
+matcher.ignoreHeaders.add('content-length');
+
+// Assign to VCR
+vcr.matcher = matcher;
 ```
 
 Alternatively, you can extend the default request matcher:
@@ -84,6 +116,9 @@ class MyCustomRequestMatcher extends DefaultRequestMatcher {
     // custom method matching logic
   }
 }
+
+const vcr = new VCR(...);
+vcr.matcher = new MyCustomRequestMatcher();
 ```
 
 If you have more advanced matching needs you can implement your own Request Matcher:
@@ -100,6 +135,10 @@ export interface IRequestMatcher {
    * @returns {number} the index of the match or -1 if not found
    */
   indexOf(calls: HttpInteraction[], request: HttpRequest): number;
+}
+
+export class MyCustomRequestMatcher implements IRequestMatcher {
+  ...
 }
 ```
 
@@ -147,3 +186,56 @@ const vcr = new VCR(new DatabaseStorage());
 
 For more details refer to the [FileStorage](https://github.com/epignosisx/vcr-test/blob/main/src/file-storage.ts) implementation.
 
+### Request pass-through
+You may want certain requests to never be recorded. You can do it this way:
+
+```ts
+import { VCR } from 'vcr-test';
+const vcr = new VCR(...);
+vcr.requestPassThrough = (req) => {
+  return req.url.startsWith('https://example.com');
+};
+```
+
+## FAQ
+### How can I pretty print JSON bodies?
+
+Here is a custom Cassette Storage implementatation that adds a new field with the formatted request and response body. It does not modify the real bodies to keep 100% fidelity with what the app sends and receives.
+
+```ts
+class PrettifiedFileStorage extends FileStorage {
+  override save(name: string, interactions: HttpInteraction[]): Promise<void> {
+    for (const int of interactions) {
+      let contentType = int.request.headers['content-type'];
+      if (contentType?.startsWith('application/json')) {
+        try {
+          // @ts-expect-error dynamically adding field
+          int.request.bodyf = JSON.stringify(JSON.parse(int.request.body), null, 2);
+        } catch (err) {
+          console.error('Failed to prettify request body', err);
+        }
+      }
+
+      contentType = int.response.headers['content-type'];
+      if (contentType?.startsWith('application/json')) {
+        try {
+          // @ts-expect-error dynamically adding field
+          int.response.bodyf = JSON.stringify(JSON.parse(int.response.body), null, 2);
+        } catch (err) {
+          console.error('Failed to prettify response body', err);
+        }
+      }
+    }
+
+    return super.save(name, interactions);
+  }
+}
+
+const vcr = new VCR(new PrettifiedFileStorage(...));
+```
+
+### How do I update an existing cassette because of a change?
+The simplest way is to just delete the cassette and re-record it making all live calls. However, this may be tricky if the is some HTTP call is dynamic and you would not get the exact same data you were testing for. Here are some other options:
+
+1. Change the cassette manually, after all it is just YAML. Make sure to update the `Content-Length` header if the body changes!
+2. Change VCR's `mode` to `update`, run the test, then change back. This will make live calls for the requests that were not found in the cassette.

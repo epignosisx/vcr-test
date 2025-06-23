@@ -1,0 +1,43 @@
+- request:
+    url: https://httpbin.org/post
+    method: POST
+    headers:
+      accept: application/json
+      accept-encoding: gzip, compress, deflate, br
+      content-length: "22"
+      content-type: application/json
+      host: httpbin.org
+      user-agent: axios/1.7.4
+    body: '{"name":"alex-update"}'
+  response:
+    status: 200
+    statusText: OK
+    headers:
+      access-control-allow-credentials: "true"
+      access-control-allow-origin: "*"
+      connection: close
+      content-length: "510"
+      content-type: application/json
+      date: Fri, 03 Jan 2025 23:00:12 GMT
+      server: gunicorn/19.9.0
+    body: |
+      {
+        "args": {}, 
+        "data": "{\"name\":\"alex-update\"}", 
+        "files": {}, 
+        "form": {}, 
+        "headers": {
+          "Accept": "application/json", 
+          "Accept-Encoding": "gzip, compress, deflate, br", 
+          "Content-Length": "22", 
+          "Content-Type": "application/json", 
+          "Host": "httpbin.org", 
+          "User-Agent": "axios/1.7.4", 
+          "X-Amzn-Trace-Id": "Root=1-67786bfc-596ee76d43ded5ad7722041d"
+        }, 
+        "json": {
+          "name": "alex-update"
+        }, 
+        "origin": "104.5.242.141", 
+        "url": "https://httpbin.org/post"
+      }
