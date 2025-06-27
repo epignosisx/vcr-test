@@ -212,15 +212,23 @@ export function responseToHttpResponse(response: any, body: string): HttpRespons
 }
 
 async function consumeBody(req: Request | Response) {
-  return isGzipped(req.headers) ? Buffer.from(await req.arrayBuffer()).toString('base64') : await req.text();
+  if (isGzipped(req.headers)) {
+    return Buffer.from(await req.arrayBuffer()).toString('base64');
+  } else {
+    return await req.text()
+  }
 }
 
 function isGzippedMatch(headers: Record<string, string>): boolean {
-  const header = headers['content-encoding'];
-  return !!header && header.indexOf('gzip') >= 0;
+  const encodingHeader = headers['content-encoding'] ?? '';
+  const contentHeader = headers['content-type'] ?? '';
+  return encodingHeader.indexOf('gzip') >= 0 ||
+    contentHeader.indexOf('gzip') >= 0;
 }
 
 function isGzipped(headers: Headers): boolean {
-  const header = headers.get('content-encoding');
-  return !!header && header.indexOf('gzip') >= 0;
+  const encodingHeader = headers.get('content-encoding') ?? '';
+  const contentHeader = headers.get('content-type') ?? '';
+  return encodingHeader.indexOf('gzip') >= 0 ||
+    contentHeader.indexOf('gzip') >= 0;
 }

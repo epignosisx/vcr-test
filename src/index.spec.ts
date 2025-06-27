@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { RecordMode, VCR } from './index';
 import { FileStorage } from "./file-storage";
 import { unlink } from 'node:fs/promises';
-import { existsSync, statSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
 
 const CASSETTES_DIR = join(__dirname, '__cassettes__');
@@ -141,6 +141,28 @@ describe('cassette', () => {
           }
         });
       });
+    }, 5000000);
+
+    it('can record gzip from S3 as base64', async () => {
+      var vcr = new VCR(new FileStorage(CASSETTES_DIR));
+      await vcr.useCassette('fetch_gzipped_data_stored_as_base64_from_s3', async () => {
+        const res = await fetch('https://crates.io/api/v1/crates/serde/1.0.219/download', {
+          headers: {
+            'User-Agent': 'UnitTests; raynos2@gmail.com',
+          }
+        })
+        const body = await res.arrayBuffer()
+        console.log(body)
+
+        const utf8Text = new TextDecoder().decode(body)
+        console.log(utf8Text.slice(0, 100))
+
+        const base64 = Buffer.from(body).toString('base64')
+        console.log(base64.slice(0, 100))
+
+        expect(base64.slice(0, 10)).toEqual('H4sICAAAAA')
+        expect(base64.slice(-10)).toEqual('+W2QBgCAA=')
+      })
     }, 5000000);
 
     it('does not record when request is marked as pass-through', async () => {
