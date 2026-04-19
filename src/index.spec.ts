@@ -102,7 +102,7 @@ describe('cassette', () => {
     }, 5000000);
   });
 
-  describe('fetch', () => {
+  describe('axios fetch', () => {
     it('records the same HTTP call multiple times', async () => {
       var vcr = new VCR(new FileStorage(CASSETTES_DIR));
       vcr.requestMasker = (req) => {
@@ -203,6 +203,138 @@ describe('cassette', () => {
 
         expect(body.data).toMatchInlineSnapshot(`"{"name":"alex-update"}"`);
       });
+    }, 5000000);
+  });
+
+  describe('native fetch', () => {
+    it('records the same HTTP call multiple times', async () => {
+      var vcr = new VCR(new FileStorage(CASSETTES_DIR));
+      vcr.requestMasker = (req) => {
+        req.headers['user-agent'] = '****';
+      };
+      await vcr.useCassette('native_fetch_same_http_call_multiple_times', async () => {
+        const res1 = await fetch('https://httpbin.org/post', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({ name: 'alex' })
+        });
+
+        const data1 = await res1.json();
+        expect(data1).toBeDefined();
+  
+        const res2 = await fetch('https://httpbin.org/post', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({ name: 'alex' })
+        });
+
+        const data2 = await res2.json();
+        expect(data2).toBeDefined();
+      });
+    }, 5000000);
+  
+    it('records gzipped data as base64', async () => {
+      var vcr = new VCR(new FileStorage(CASSETTES_DIR));
+      vcr.requestMasker = (req) => {
+        req.headers['user-agent'] = '****';
+      };
+      await vcr.useCassette('native_fetch_gzipped_data_stored_as_base64', async () => {
+        const res =  await fetch('https://httpbin.org/gzip', {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          }
+        });
+
+        const data = await res.json();
+        expect(data).toBeDefined();
+      });
+    }, 5000000);
+
+    it('does not record when request is marked as pass-through', async () => {
+      var vcr = new VCR(new FileStorage(CASSETTES_DIR));
+      vcr.requestPassThrough = (req) => {
+        return req.url === 'https://httpbin.org/put';
+      };
+      await vcr.useCassette('native_fetch_pass_through_calls', async () => {
+        await fetch('https://httpbin.org/put', {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          method: 'PUT',
+          body: JSON.stringify({name: 'alex'})
+        });
+
+        await axios.post('https://httpbin.org/post', {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          method: 'POST',
+          body: JSON.stringify({name: 'alex'})
+        });
+      });
+    }, 5000000);
+
+    it('records new calls', async () => {
+      const cassette = join(CASSETTES_DIR, 'fetch_new_calls.yaml');
+      if (existsSync(cassette)) {
+        await unlink(cassette);
+      }
+
+      var vcr = new VCR(new FileStorage(CASSETTES_DIR));
+      vcr.mode = RecordMode.once;
+      await vcr.useCassette('native_fetch_new_calls', async () => {
+        const body: any = await fetch('https://httpbin.org/post', {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          method: 'POST',
+          body: JSON.stringify({name: 'alex'})
+        }).then(res => res.json());
+
+        expect(body.data).toMatchInlineSnapshot(`"{"name":"alex"}"`);
+      });
+
+      vcr.mode = RecordMode.update;
+      await vcr.useCassette('fetch_new_calls', async () => {
+        const body: any = await fetch('https://httpbin.org/post', {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          method: 'POST',
+          body: JSON.stringify({name: 'alex-update'})
+        }).then(res => res.json());
+
+        expect(body.data).toMatchInlineSnapshot(`"{"name":"alex-update"}"`);
+      });
+    }, 5000000);
+  });
+
+  describe('disposable', () => {
+    it('supports await using pattern', async () => {
+      const vcr = new VCR(new FileStorage(CASSETTES_DIR));
+      await using _cassette = await vcr.useCassette('disposable_test');
+
+      const res = await fetch('https://httpbin.org/post', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ name: 'disposable' }),
+      });
+      const data: any = await res.json();
+      expect(data.data).toMatchInlineSnapshot(`"{"name":"disposable"}"`);
     }, 5000000);
   });
 });

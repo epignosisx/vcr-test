@@ -3,40 +3,38 @@
     method: POST
     headers:
       accept: application/json
-      accept-encoding: gzip, compress, deflate, br
-      content-length: "22"
       content-type: application/json
-      host: httpbin.org
-      user-agent: axios/1.10.0
-    body: '{"name":"alex-update"}'
+    body: '{"name":"disposable"}'
   response:
     status: 200
     statusText: OK
     headers:
       access-control-allow-credentials: "true"
       access-control-allow-origin: "*"
-      connection: close
-      content-length: "511"
+      connection: keep-alive
+      content-length: "551"
       content-type: application/json
-      date: Sun, 19 Apr 2026 20:44:01 GMT
+      date: Fri, 17 Apr 2026 14:18:34 GMT
       server: gunicorn/19.9.0
     body: |
       {
         "args": {}, 
-        "data": "{\"name\":\"alex-update\"}", 
+        "data": "{\"name\":\"disposable\"}", 
         "files": {}, 
         "form": {}, 
         "headers": {
           "Accept": "application/json", 
-          "Accept-Encoding": "gzip, compress, deflate, br", 
-          "Content-Length": "22", 
+          "Accept-Encoding": "br, gzip, deflate", 
+          "Accept-Language": "*", 
+          "Content-Length": "21", 
           "Content-Type": "application/json", 
           "Host": "httpbin.org", 
-          "User-Agent": "axios/1.10.0", 
-          "X-Amzn-Trace-Id": "Root=1-69e53e91-0ba56efa407d267a751963db"
+          "Sec-Fetch-Mode": "cors", 
+          "User-Agent": "node", 
+          "X-Amzn-Trace-Id": "Root=1-69e2413a-63219e8f369c95a144c8f719"
         }, 
         "json": {
-          "name": "alex-update"
+          "name": "disposable"
         }, 
         "origin": "104.5.242.141", 
         "url": "https://httpbin.org/post"

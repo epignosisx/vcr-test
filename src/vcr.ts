@@ -19,20 +19,31 @@ export class VCR {
 
   constructor (private readonly storage: ICassetteStorage) {}
 
-  public async useCassette(name: string, action: () => Promise<void>) {
+  public async useCassette(name: string): Promise<AsyncDisposable>;
+  public async useCassette(name: string, action: () => Promise<void>): Promise<void>;
+  public async useCassette(name: string, action?: () => Promise<void>): Promise<AsyncDisposable | void> {
     const mode = ENV_TO_RECORD_MODE[process.env.VCR_MODE ?? this.mode] ?? this.mode;
 
-    var cassette = new Cassette(this.storage, this.matcher, name, mode, this.requestMasker, this.requestPassThrough);
+    const cassette = new Cassette(this.storage, this.matcher, name, mode, this.requestMasker, this.requestPassThrough);
     await cassette.mount();
-    try {
-      await action();
+
+    const teardown = async () => {
       let waited = 0;
       while (!cassette.isDone() && waited < 10_000) {
         waited += 50;
         await setTimeout(50);
       }
-    } finally {
       await cassette.eject();
+    };
+
+    if (!action) {
+      return { [Symbol.asyncDispose]: teardown };
+    }
+
+    try {
+      await action();
+    } finally {
+      await teardown();
     }
   }
 }
