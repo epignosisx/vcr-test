@@ -7,7 +7,7 @@
       content-length: "120"
       content-type: application/json
       host: httpbin.org
-      user-agent: axios/1.10.0
+      user-agent: axios/1.20.0
     body: '{"headers":{"Content-Type":"application/json","Accept":"application/json"},"method":"POST","body":"{\"name\":\"alex\"}"}'
   response:
     status: 200
@@ -18,7 +18,7 @@
       connection: close
       content-length: "783"
       content-type: application/json
-      date: Mon, 23 Jun 2025 14:56:20 GMT
+      date: Fri, 28 Aug 2026 20:26:40 GMT
       server: gunicorn/19.9.0
     body: >
       {
@@ -32,8 +32,8 @@
           "Content-Length": "120", 
           "Content-Type": "application/json", 
           "Host": "httpbin.org", 
-          "User-Agent": "axios/1.10.0", 
-          "X-Amzn-Trace-Id": "Root=1-68596b13-37b2726164aa45172bb21134"
+          "User-Agent": "axios/1.20.0", 
+          "X-Amzn-Trace-Id": "Root=1-6a91ef00-4c589a55749aa5e6617813ec"
         }, 
         "json": {
           "body": "{\"name\":\"alex\"}", 

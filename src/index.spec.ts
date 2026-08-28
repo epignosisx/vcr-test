@@ -272,7 +272,7 @@ describe('cassette', () => {
           body: JSON.stringify({name: 'alex'})
         });
 
-        await axios.post('https://httpbin.org/post', {
+        await fetch('https://httpbin.org/post', {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',

@@ -7,7 +7,7 @@
       content-length: "15"
       content-type: application/json
       host: httpbin.org
-      user-agent: axios/1.10.0
+      user-agent: axios/1.20.0
     body: '{"name":"john"}'
   response:
     status: 200
@@ -32,7 +32,7 @@
           "Content-Length": "15", 
           "Content-Type": "application/json", 
           "Host": "httpbin.org", 
-          "User-Agent": "axios/1.10.0", 
+          "User-Agent": "axios/1.20.0", 
           "X-Amzn-Trace-Id": "Root=1-68596a7c-40631a4f08f93c7d43f857f9"
         }, 
         "json": {
