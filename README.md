@@ -85,6 +85,7 @@ Cassettes are stored as YAML files. Each file contains an array of HTTP interact
       content-type: application/json
       accept: application/json
     body: '{"name":"john"}'
+    bodyEncoding: utf8
   response:
     status: 200
     statusText: OK
@@ -92,6 +93,7 @@ Cassettes are stored as YAML files. Each file contains an array of HTTP interact
       content-type: application/json
     body: |
       {"args": {}, "data": "{\"name\":\"john\"}"}
+    bodyEncoding: utf8
 ```
 
 You can edit cassettes by hand — they're just YAML. If you change a response body, remember to update the `content-length` header to match.

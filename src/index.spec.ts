@@ -4,7 +4,9 @@ import { RecordMode, VCR } from './index';
 import { FileStorage } from "./file-storage";
 import { unlink } from 'node:fs/promises';
 import { existsSync, statSync } from 'node:fs';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { createServer, Server } from 'node:http';
+import { gzipSync, gunzipSync } from 'node:zlib';
 
 const CASSETTES_DIR = join(__dirname, '__cassettes__');
 
@@ -335,6 +337,53 @@ describe('cassette', () => {
       });
       const data: any = await res.json();
       expect(data.data).toMatchInlineSnapshot(`"{"name":"disposable"}"`);
+    }, 5000000);
+  });
+
+  describe('binary bodies', () => {
+    // Raw bytes at rest (e.g. a tarball on S3) arrive with a binary content-type but no
+    // content-encoding, so they must be base64 encoded to survive the cassette round-trip.
+    const TARBALL = gzipSync(Buffer.from('the quick brown fox jumps over the lazy dog'));
+    let server: Server;
+    let origin: string;
+
+    beforeAll(async () => {
+      server = createServer((_req, res) => {
+        res.writeHead(200, {
+          'content-type': 'application/gzip',
+          'content-length': String(TARBALL.length),
+        });
+        res.end(TARBALL);
+      });
+      await new Promise<void>((resolve) => server.listen(0, resolve));
+      origin = `http://localhost:${(server.address() as any).port}`;
+    });
+
+    afterAll(async () => {
+      await new Promise((resolve) => server.close(resolve));
+    });
+
+    it('replays raw bytes byte-for-byte', async () => {
+      const cassette = join(CASSETTES_DIR, 'raw_bytes.yaml');
+      if (existsSync(cassette)) {
+        await unlink(cassette);
+      }
+
+      const vcr = new VCR(new FileStorage(CASSETTES_DIR));
+      vcr.mode = RecordMode.once;
+      await vcr.useCassette('raw_bytes', async () => {
+        const res = await fetch(`${origin}/archive.tar.gz`);
+        const recorded = Buffer.from(new Uint8Array(await res.arrayBuffer()));
+        expect(recorded.equals(TARBALL)).toBe(true);
+      });
+
+      vcr.mode = RecordMode.none;
+      await vcr.useCassette('raw_bytes', async () => {
+        const res = await fetch(`${origin}/archive.tar.gz`);
+        const replayed = Buffer.from(new Uint8Array(await res.arrayBuffer()));
+        expect(replayed.equals(TARBALL)).toBe(true);
+        expect(gunzipSync(replayed).toString()).toBe('the quick brown fox jumps over the lazy dog');
+      });
     }, 5000000);
   });
 });

@@ -9,6 +9,7 @@
       host: httpbin.org
       user-agent: axios/1.20.0
     body: '{"name":"alex-update"}'
+    bodyEncoding: utf8
   response:
     status: 200
     statusText: OK
@@ -18,7 +19,7 @@
       connection: close
       content-length: "511"
       content-type: application/json
-      date: Fri, 28 Aug 2026 20:26:46 GMT
+      date: Fri, 28 Aug 2026 20:56:52 GMT
       server: gunicorn/19.9.0
     body: |
       {
@@ -33,7 +34,7 @@
           "Content-Type": "application/json", 
           "Host": "httpbin.org", 
           "User-Agent": "axios/1.20.0", 
-          "X-Amzn-Trace-Id": "Root=1-6a91ef06-2a310dcb3e6f8ed7279a2847"
+          "X-Amzn-Trace-Id": "Root=1-6a91f614-7d7f956103e1f32013246968"
         }, 
         "json": {
           "name": "alex-update"
@@ -41,3 +42,4 @@
         "origin": "104.5.242.141", 
         "url": "https://httpbin.org/post"
       }
+    bodyEncoding: utf8
