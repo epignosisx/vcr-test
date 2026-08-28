@@ -5,6 +5,7 @@
       accept: application/json
       content-type: application/json
     body: '{"name":"alex-update"}'
+    bodyEncoding: utf8
   response:
     status: 200
     statusText: OK
@@ -14,7 +15,7 @@
       connection: keep-alive
       content-length: "553"
       content-type: application/json
-      date: Fri, 28 Aug 2026 20:26:47 GMT
+      date: Fri, 28 Aug 2026 20:56:53 GMT
       server: gunicorn/19.9.0
     body: |
       {
@@ -31,7 +32,7 @@
           "Host": "httpbin.org", 
           "Sec-Fetch-Mode": "cors", 
           "User-Agent": "node", 
-          "X-Amzn-Trace-Id": "Root=1-6a91ef07-185f89ac77dd5f2c7c77d090"
+          "X-Amzn-Trace-Id": "Root=1-6a91f615-37219d571b00ebfc7fe9e07b"
         }, 
         "json": {
           "name": "alex-update"
@@ -39,3 +40,4 @@
         "origin": "104.5.242.141", 
         "url": "https://httpbin.org/post"
       }
+    bodyEncoding: utf8

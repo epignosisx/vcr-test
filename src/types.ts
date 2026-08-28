@@ -1,9 +1,17 @@
 
+/**
+ * How a body is represented in the cassette.
+ * `utf8` stores the body verbatim as text, `base64` stores the raw bytes base64 encoded.
+ * When absent, `utf8` is assumed, unless the body was compressed (`content-encoding`).
+ */
+export type BodyEncoding = 'utf8' | 'base64';
+
 export type HttpRequest = {
   url: string;
   method: string;
   headers: Record<string, string>;
   body: string;
+  bodyEncoding?: BodyEncoding;
 }
 
 export type HttpResponse = {
@@ -11,6 +19,7 @@ export type HttpResponse = {
   statusText: string;
   headers: Record<string, string>;
   body: string;
+  bodyEncoding?: BodyEncoding;
 }
 
 export type HttpInteraction = {

@@ -3,8 +3,7 @@ import { ClientRequestInterceptor } from '@mswjs/interceptors/ClientRequest';
 import { BatchInterceptor } from '@mswjs/interceptors'
 
 
-import { HttpInteraction, ICassetteStorage, IRequestMatcher, RecordMode, HttpRequest, HttpResponse, HttpRequestMasker, PassThroughHandler } from './types';
-import { Readable } from 'node:stream';
+import { HttpInteraction, ICassetteStorage, IRequestMatcher, RecordMode, HttpRequest, HttpResponse, HttpRequestMasker, PassThroughHandler, BodyEncoding } from './types';
 import assert from 'node:assert';
 
 export class MatchNotFoundError extends Error {
@@ -83,8 +82,10 @@ export class Cassette {
       
       const res: Response = response.clone();
 
-      const httpRequest = requestToHttpRequest(req, await consumeBody(req));
-      const httpResponse = responseToHttpResponse(res, await consumeBody(res));
+      const reqBody = await consumeBody(req);
+      const resBody = await consumeBody(res);
+      const httpRequest = requestToHttpRequest(req, reqBody.body, reqBody.bodyEncoding);
+      const httpResponse = responseToHttpResponse(res, resBody.body, resBody.bodyEncoding);
 
       this.masker(httpRequest);
 
@@ -121,7 +122,8 @@ export class Cassette {
 
   private async playback(request: any): Promise<void> {
     const req = request.clone();
-    const httpRequest = requestToHttpRequest(req, await consumeBody(req));
+    const reqBody = await consumeBody(req);
+    const httpRequest = requestToHttpRequest(req, reqBody.body, reqBody.bodyEncoding);
     this.masker?.(httpRequest);
     const match = this.findMatch(httpRequest);
     if (!match) {
@@ -130,14 +132,9 @@ export class Cassette {
 
     this.usedInteractions.add(match);
 
-    let body: string | Readable = match.response.body;
-    if (isGzippedMatch(match.response.headers)) {
-      const readable = new Readable();
-      readable._read = () => {};
-      readable.push(Buffer.from(match.response.body, 'base64'));
-      readable.push(null);
-      body = readable;
-    }
+    const body: string | Uint8Array = resolveBodyEncoding(match.response) === 'base64'
+      ? Buffer.from(match.response.body, 'base64')
+      : match.response.body;
 
     request.respondWith(new Response(body, {
       status: match.response.status,
@@ -158,7 +155,8 @@ export class Cassette {
   private async isPassThrough(request: any) {
     if (this.passThroughHandler) {
       const req = request.clone();
-      const httpRequest = requestToHttpRequest(req, await consumeBody(req));
+      const reqBody = await consumeBody(req);
+      const httpRequest = requestToHttpRequest(req, reqBody.body, reqBody.bodyEncoding);
       return this.passThroughHandler(httpRequest);
     }
     return false;
@@ -183,7 +181,7 @@ export class Cassette {
   }
 }
 
-export function requestToHttpRequest(request: Request, body: string): HttpRequest {
+export function requestToHttpRequest(request: Request, body: string, bodyEncoding: BodyEncoding = 'utf8'): HttpRequest {
   var headers: Record<string, string> = {};
   for (const [key, value] of request.headers) {
     headers[key] = value;
@@ -194,10 +192,11 @@ export function requestToHttpRequest(request: Request, body: string): HttpReques
     method: request.method,
     headers,
     body,
+    bodyEncoding,
   }
 }
 
-export function responseToHttpResponse(response: any, body: string): HttpResponse {
+export function responseToHttpResponse(response: any, body: string, bodyEncoding: BodyEncoding = 'utf8'): HttpResponse {
   var headers: Record<string, string> = {};
   for (const [key, value] of response.headers) {
     headers[key] = value;
@@ -208,19 +207,50 @@ export function responseToHttpResponse(response: any, body: string): HttpRespons
     statusText: response.statusText,
     headers,
     body,
+    bodyEncoding,
   }
 }
 
-async function consumeBody(req: Request | Response) {
-  return isGzipped(req.headers) ? Buffer.from(await req.arrayBuffer()).toString('base64') : await req.text();
+type ConsumedBody = {
+  body: string;
+  bodyEncoding: BodyEncoding;
 }
 
-function isGzippedMatch(headers: Record<string, string>): boolean {
-  const header = headers['content-encoding'];
-  return !!header && header.indexOf('gzip') >= 0;
+/**
+ * Reads the body of a request/response and encodes it so it survives a round-trip
+ * through the cassette. Text is stored verbatim for readability; anything that is not
+ * losslessly representable as UTF-8 text (tarballs, images, raw gzip files, protobuf, ...)
+ * is stored as base64.
+ */
+async function consumeBody(req: Request | Response): Promise<ConsumedBody> {
+  const bytes = Buffer.from(await req.arrayBuffer());
+
+  if (isCompressed(req.headers.get('content-encoding'))) {
+    return { body: bytes.toString('base64'), bodyEncoding: 'base64' };
+  }
+
+  const text = bytes.toString('utf8');
+  if (!Buffer.from(text, 'utf8').equals(bytes)) {
+    // Not valid UTF-8: decoding replaced bytes with U+FFFD and the original bytes are unrecoverable.
+    return { body: bytes.toString('base64'), bodyEncoding: 'base64' };
+  }
+
+  return { body: text, bodyEncoding: 'utf8' };
 }
 
-function isGzipped(headers: Headers): boolean {
-  const header = headers.get('content-encoding');
-  return !!header && header.indexOf('gzip') >= 0;
+/**
+ * Resolves how a recorded body was stored. Cassettes recorded before `bodyEncoding`
+ * existed only ever stored base64 for compressed bodies, so fall back to that.
+ */
+function resolveBodyEncoding(response: HttpResponse): BodyEncoding {
+  if (response.bodyEncoding) {
+    return response.bodyEncoding;
+  }
+  // Legacy cassettes: only gzip was ever base64 encoded.
+  const contentEncoding = response.headers['content-encoding'];
+  return !!contentEncoding && contentEncoding.indexOf('gzip') >= 0 ? 'base64' : 'utf8';
+}
+
+function isCompressed(contentEncoding: string | undefined | null): boolean {
+  return !!contentEncoding && /\b(gzip|x-gzip|br|deflate|zstd|compress)\b/i.test(contentEncoding);
 }

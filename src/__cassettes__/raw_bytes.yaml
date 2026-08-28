@@ -1,0 +1,17 @@
+- request:
+    url: http://localhost:57725/archive.tar.gz
+    method: GET
+    headers: {}
+    body: ""
+    bodyEncoding: utf8
+  response:
+    status: 200
+    statusText: OK
+    headers:
+      connection: keep-alive
+      content-length: "63"
+      content-type: application/gzip
+      date: Fri, 28 Aug 2026 20:56:53 GMT
+      keep-alive: timeout=5
+    body: H4sIAAAAAAAAEyvJSFUoLM1MzlZIKsovz1NIy69QyCrNLShWyC9LLVIoyUhVyEmsqlRIyU8HABRRDM4rAAAA
+    bodyEncoding: base64
