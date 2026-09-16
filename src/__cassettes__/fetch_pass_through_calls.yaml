@@ -9,16 +9,16 @@
       host: httpbin.org
       user-agent: axios/1.20.0
     body: '{"headers":{"Content-Type":"application/json","Accept":"application/json"},"method":"POST","body":"{\"name\":\"alex\"}"}'
+    bodyEncoding: utf8
   response:
     status: 200
     statusText: OK
     headers:
       access-control-allow-credentials: "true"
       access-control-allow-origin: "*"
-      connection: close
       content-length: "783"
       content-type: application/json
-      date: Fri, 28 Aug 2026 20:26:40 GMT
+      date: Wed, 16 Sep 2026 17:36:37 GMT
       server: gunicorn/19.9.0
     body: >
       {
@@ -33,7 +33,7 @@
           "Content-Type": "application/json", 
           "Host": "httpbin.org", 
           "User-Agent": "axios/1.20.0", 
-          "X-Amzn-Trace-Id": "Root=1-6a91ef00-4c589a55749aa5e6617813ec"
+          "X-Amzn-Trace-Id": "Root=1-6aaad3a5-135aa52e7ead4d450a999c4f"
         }, 
         "json": {
           "body": "{\"name\":\"alex\"}", 
@@ -46,3 +46,4 @@
         "origin": "104.5.242.141", 
         "url": "https://httpbin.org/post"
       }
+    bodyEncoding: utf8

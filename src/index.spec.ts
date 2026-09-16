@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { RecordMode, VCR } from './index';
 import { FileStorage } from "./file-storage";
 import { unlink } from 'node:fs/promises';
-import { existsSync, statSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { createServer, Server } from 'node:http';
 import { gzipSync, gunzipSync } from 'node:zlib';

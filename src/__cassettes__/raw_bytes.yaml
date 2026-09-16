@@ -1,17 +1,21 @@
 - request:
-    url: http://localhost:57725/archive.tar.gz
+    url: http://localhost:58154/archive.tar.gz
     method: GET
-    headers: {}
+    headers:
+      accept: "*/*"
+      accept-encoding: gzip, deflate
+      accept-language: "*"
+      host: localhost:58154
+      sec-fetch-mode: cors
+      user-agent: node
     body: ""
     bodyEncoding: utf8
   response:
     status: 200
     statusText: OK
     headers:
-      connection: keep-alive
       content-length: "63"
       content-type: application/gzip
-      date: Fri, 28 Aug 2026 20:56:53 GMT
-      keep-alive: timeout=5
+      date: Wed, 16 Sep 2026 18:18:01 GMT
     body: H4sIAAAAAAAAEyvJSFUoLM1MzlZIKsovz1NIy69QyCrNLShWyC9LLVIoyUhVyEmsqlRIyU8HABRRDM4rAAAA
     bodyEncoding: base64
