@@ -3,18 +3,24 @@
     method: POST
     headers:
       accept: application/json
+      accept-encoding: br, gzip, deflate
+      accept-language: "*"
+      content-length: "15"
       content-type: application/json
+      host: httpbin.org
+      sec-fetch-mode: cors
+      user-agent: node
     body: '{"name":"alex"}'
+    bodyEncoding: utf8
   response:
     status: 200
     statusText: OK
     headers:
       access-control-allow-credentials: "true"
       access-control-allow-origin: "*"
-      connection: keep-alive
-      content-length: "540"
+      content-length: "539"
       content-type: application/json
-      date: Mon, 21 Jul 2025 22:54:46 GMT
+      date: Wed, 16 Sep 2026 17:36:38 GMT
       server: gunicorn/19.9.0
     body: |
       {
@@ -31,11 +37,12 @@
           "Host": "httpbin.org", 
           "Sec-Fetch-Mode": "cors", 
           "User-Agent": "node", 
-          "X-Amzn-Trace-Id": "Root=1-687ec536-2ce19e4f144753737564dbf9"
+          "X-Amzn-Trace-Id": "Root=1-6aaad3a6-7efcfcc1168b2ea31008f333"
         }, 
         "json": {
           "name": "alex"
         }, 
-        "origin": "172.58.130.133", 
+        "origin": "104.5.242.141", 
         "url": "https://httpbin.org/post"
       }
+    bodyEncoding: utf8

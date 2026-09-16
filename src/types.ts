@@ -45,7 +45,9 @@ export enum RecordMode {
   update = 'update',
 
   /**
-   * Record every HTTP interactions; do not play any back.
+   * Re-record from scratch: any existing cassette is ignored rather than loaded, every request is
+   * made live, and the cassette is replaced with this run's traffic. Equivalent to deleting the
+   * cassette and recording it again.
    */
   all = 'all'
 }
@@ -87,6 +89,19 @@ export interface IRequestMatcher {
  * A function that masks an HTTP request
  */
 export type HttpRequestMasker = (httpRequest: HttpRequest) => void;
+
+/**
+ * A function that masks an HTTP response before it is recorded.
+ *
+ * Rewrite the body freely - `content-length` is restated from whatever the body ends up being, so
+ * a masker never has to keep framing headers in step with its own edits.
+ *
+ * `httpRequest` is the request this response answered, so masking can be scoped to an endpoint
+ * rather than applied to every body. It is passed read-only and has already been through the
+ * `HttpRequestMasker`, so it is the request as it will appear in the cassette: if that masker
+ * rewrites the url, branch on what survives it.
+ */
+export type HttpResponseMasker = (httpResponse: HttpResponse, httpRequest: Readonly<HttpRequest>) => void;
 
 /**
  * A function that allows an HTTP request to pass through (never be recorded)

@@ -8,16 +8,17 @@
       host: httpbin.org
       user-agent: "****"
     body: ""
+    bodyEncoding: utf8
   response:
     status: 200
     statusText: OK
     headers:
       access-control-allow-credentials: "true"
       access-control-allow-origin: "*"
-      connection: close
       content-encoding: gzip
       content-length: "253"
       content-type: application/json
-      date: Mon, 23 Jun 2025 14:45:12 GMT
+      date: Wed, 16 Sep 2026 17:36:36 GMT
       server: gunicorn/19.9.0
-    body: H4sIAHhoWWgC/32QzW6DMBCE7zyF5TN2bAcoVOoBVVHba0WlXonZgKvgtWxXahPl3WuIxLHHnZ359ueaEULHi3EOBvpIov+GnCzaBP0APiTtmsoktFqDi6mmvXNno/to0O6+Alq6JjYLO1iNg7Hj4l3QOdE4Ow8h5GSA07mPacbRb7FntBFsZN2vg3/5rxjWBaYY3dFYjn7ceh8BPGvHxFkRPwbDTnIpuNgsn6ydL5Z1vtfA3pZz6TtifJKsqsumqivNpKhBi72S+qFoVKPUvhClbhqaCLf7Y2aIE67hl0N3Z1P0ZjR20aQoeMlVobgsJM1u2R+6zBE+YQEAAA==
+    body: H4sIAKTTqmoC/32QzW7DIBCE734KxNkQg52kqdSDVUVtr5Ur9YphY1PFLAIqtYny7sWO5GOPOzvz7c+1IIQOF+s9GPpIUviGkszaCMpAiFm75jILrdbgU66p8v5stUoW3eYroqNLYrWwo9NorBtm74wuicbJB4ixJAZOZ5XyjD6ssWd0CVxi3a+Hf/mvGJcFxpR8bx3HMKy9jwiBtUPmLIgfi3EjuKx4tVo+WTtdHOuC0sDe5nPpO2J6EmynlDK1ati272V1qGop5Qnq7UEo8bDf7Q3NhNv9MROkEZfwy7G7sykGO1g3a6Jq+JbLRnLRCFrcij8SV9OfYQEAAA==
+    bodyEncoding: base64

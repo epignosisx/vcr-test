@@ -3,19 +3,24 @@
     method: POST
     headers:
       accept: application/json
+      accept-encoding: br, gzip, deflate
+      accept-language: "*"
+      content-length: "15"
       content-type: application/json
+      host: httpbin.org
+      sec-fetch-mode: cors
       user-agent: "****"
     body: '{"name":"alex"}'
+    bodyEncoding: utf8
   response:
     status: 200
     statusText: OK
     headers:
       access-control-allow-credentials: "true"
       access-control-allow-origin: "*"
-      connection: keep-alive
-      content-length: "540"
+      content-length: "539"
       content-type: application/json
-      date: Mon, 21 Jul 2025 22:49:48 GMT
+      date: Wed, 16 Sep 2026 17:36:38 GMT
       server: gunicorn/19.9.0
     body: |
       {
@@ -32,32 +37,38 @@
           "Host": "httpbin.org", 
           "Sec-Fetch-Mode": "cors", 
           "User-Agent": "node", 
-          "X-Amzn-Trace-Id": "Root=1-687ec40b-21342d9a4f475b4946ef9f6d"
+          "X-Amzn-Trace-Id": "Root=1-6aaad3a6-659433d90249bdb96f60acdf"
         }, 
         "json": {
           "name": "alex"
         }, 
-        "origin": "172.58.130.133", 
+        "origin": "104.5.242.141", 
         "url": "https://httpbin.org/post"
       }
+    bodyEncoding: utf8
 - request:
     url: https://httpbin.org/post
     method: POST
     headers:
       accept: application/json
+      accept-encoding: br, gzip, deflate
+      accept-language: "*"
+      content-length: "15"
       content-type: application/json
+      host: httpbin.org
+      sec-fetch-mode: cors
       user-agent: "****"
     body: '{"name":"alex"}'
+    bodyEncoding: utf8
   response:
     status: 200
     statusText: OK
     headers:
       access-control-allow-credentials: "true"
       access-control-allow-origin: "*"
-      connection: keep-alive
-      content-length: "540"
+      content-length: "539"
       content-type: application/json
-      date: Mon, 21 Jul 2025 22:49:48 GMT
+      date: Wed, 16 Sep 2026 17:36:38 GMT
       server: gunicorn/19.9.0
     body: |
       {
@@ -74,11 +85,12 @@
           "Host": "httpbin.org", 
           "Sec-Fetch-Mode": "cors", 
           "User-Agent": "node", 
-          "X-Amzn-Trace-Id": "Root=1-687ec40c-75689cad1290073643aa0293"
+          "X-Amzn-Trace-Id": "Root=1-6aaad3a6-22cb67a40c318f312b40223f"
         }, 
         "json": {
           "name": "alex"
         }, 
-        "origin": "172.58.130.133", 
+        "origin": "104.5.242.141", 
         "url": "https://httpbin.org/post"
       }
+    bodyEncoding: utf8

@@ -3,19 +3,24 @@
     method: POST
     headers:
       accept: application/json
+      accept-encoding: br, gzip, deflate
+      accept-language: "*"
+      content-length: "15"
       content-type: application/json
+      host: httpbin.org
+      sec-fetch-mode: cors
       user-agent: "****"
     body: '{"name":"alex"}'
+    bodyEncoding: utf8
   response:
     status: 200
     statusText: OK
     headers:
       access-control-allow-credentials: "true"
       access-control-allow-origin: "*"
-      connection: keep-alive
-      content-length: "539"
+      content-length: "547"
       content-type: application/json
-      date: Mon, 23 Jun 2025 14:45:13 GMT
+      date: Wed, 16 Sep 2026 17:36:36 GMT
       server: gunicorn/19.9.0
     body: |
       {
@@ -31,8 +36,8 @@
           "Content-Type": "application/json", 
           "Host": "httpbin.org", 
           "Sec-Fetch-Mode": "cors", 
-          "User-Agent": "node", 
-          "X-Amzn-Trace-Id": "Root=1-68596878-741fffc03a2e51ec5ae29820"
+          "User-Agent": "axios/1.20.0", 
+          "X-Amzn-Trace-Id": "Root=1-6aaad3a4-04624fda5d0b63b12dcd3836"
         }, 
         "json": {
           "name": "alex"
@@ -40,24 +45,30 @@
         "origin": "104.5.242.141", 
         "url": "https://httpbin.org/post"
       }
+    bodyEncoding: utf8
 - request:
     url: https://httpbin.org/post
     method: POST
     headers:
       accept: application/json
+      accept-encoding: br, gzip, deflate
+      accept-language: "*"
+      content-length: "15"
       content-type: application/json
+      host: httpbin.org
+      sec-fetch-mode: cors
       user-agent: "****"
     body: '{"name":"alex"}'
+    bodyEncoding: utf8
   response:
     status: 200
     statusText: OK
     headers:
       access-control-allow-credentials: "true"
       access-control-allow-origin: "*"
-      connection: keep-alive
-      content-length: "539"
+      content-length: "547"
       content-type: application/json
-      date: Mon, 23 Jun 2025 14:45:18 GMT
+      date: Wed, 16 Sep 2026 17:36:37 GMT
       server: gunicorn/19.9.0
     body: |
       {
@@ -73,8 +84,8 @@
           "Content-Type": "application/json", 
           "Host": "httpbin.org", 
           "Sec-Fetch-Mode": "cors", 
-          "User-Agent": "node", 
-          "X-Amzn-Trace-Id": "Root=1-68596879-2ff3b2d521f1afb00e7ac8bb"
+          "User-Agent": "axios/1.20.0", 
+          "X-Amzn-Trace-Id": "Root=1-6aaad3a5-7aad9ab42234c8fa7d174be7"
         }, 
         "json": {
           "name": "alex"
@@ -82,3 +93,4 @@
         "origin": "104.5.242.141", 
         "url": "https://httpbin.org/post"
       }
+    bodyEncoding: utf8

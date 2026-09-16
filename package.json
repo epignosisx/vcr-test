@@ -1,6 +1,6 @@
 {
   "name": "vcr-test",
-  "version": "1.4.2",
+  "version": "2.0.0-beta.0",
   "description": "Record your test suite's HTTP interactions and replay them during future test runs for fast, deterministic, accurate tests.",
   "keywords": [
     "http",
@@ -10,6 +10,7 @@
     "testing"
   ],
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "vitest",
     "build": "tsc"
@@ -19,6 +20,9 @@
     "url": "git+https://github.com/epignosisx/vcr-test.git"
   },
   "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
   "devDependencies": {
     "@types/node": "24.0.3",
     "@vitest/coverage-v8": "4.1.11",
@@ -27,7 +31,7 @@
     "vitest": "4.1.11"
   },
   "dependencies": {
-    "@mswjs/interceptors": "0.23.0",
+    "@mswjs/interceptors": "0.42.3",
     "yaml": "^2.9.0"
   },
   "files": [

@@ -3,18 +3,24 @@
     method: POST
     headers:
       accept: application/json
+      accept-encoding: br, gzip, deflate
+      accept-language: "*"
+      content-length: "21"
       content-type: application/json
+      host: httpbin.org
+      sec-fetch-mode: cors
+      user-agent: node
     body: '{"name":"disposable"}'
+    bodyEncoding: utf8
   response:
     status: 200
     statusText: OK
     headers:
       access-control-allow-credentials: "true"
       access-control-allow-origin: "*"
-      connection: keep-alive
       content-length: "551"
       content-type: application/json
-      date: Fri, 17 Apr 2026 14:18:34 GMT
+      date: Wed, 16 Sep 2026 17:36:38 GMT
       server: gunicorn/19.9.0
     body: |
       {
@@ -31,7 +37,7 @@
           "Host": "httpbin.org", 
           "Sec-Fetch-Mode": "cors", 
           "User-Agent": "node", 
-          "X-Amzn-Trace-Id": "Root=1-69e2413a-63219e8f369c95a144c8f719"
+          "X-Amzn-Trace-Id": "Root=1-6aaad3a6-2c35a8b5750f79737dde5539"
         }, 
         "json": {
           "name": "disposable"
@@ -39,3 +45,4 @@
         "origin": "104.5.242.141", 
         "url": "https://httpbin.org/post"
       }
+    bodyEncoding: utf8
